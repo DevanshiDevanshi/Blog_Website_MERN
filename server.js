@@ -12,8 +12,21 @@
 https://github.com/DevanshiDevanshi/web322-app
 *
 ********************************************************************************/ 
+const multer = require("multer");
 
-const blogService = require("./blog-service") 
+const cloudinary = require('cloudinary').v2
+
+cloudinary.config({
+  cloud_name: 'devanshi',
+  api_key: '575723235684766',
+  api_secret: 'Q3gl0VFgyEIZZHmRIaGX210UyM0',
+  secure: true
+});
+const upload = multer(); 
+const streamifier = require('streamifier')
+
+const blogService = require("./blog-service")
+
 const path =  require("path")
 const express = require("express");
 const app = express();
@@ -22,7 +35,7 @@ function onHttpStart() {
   console.log("Express http server listening on: " + HTTP_PORT);
 }
 app.use(express.static('public')); // required dont delete this( used for static files-like images)
-
+app.use(upload.single("featureImage"));
 // setup a 'route' to listen on the default url path (http://localhost)
 app.get("/", function(req,res){
     res.redirect("/about");
@@ -63,9 +76,46 @@ app.get("/about", function(req,res){
   
   }); 
 
+  app.get("/posts/add", function(req,res){
+    res.sendFile(path.join(__dirname,"/views/addPost.html"));
+  });
+
+  app.post("/posts/add", function(req,res){
+    let streamUpload = (req) => {
+      return new Promise((resolve, reject) => {
+          let stream = cloudinary.uploader.upload_stream(
+              (error, result) => {
+              if (result) {
+                  resolve(result);
+              } else {
+                  reject(error);
+              }
+              }
+          );
+  
+          streamifier.createReadStream(req.file.buffer).pipe(stream);
+      });
+  };
+  
+  async function upload(req) {
+      let result = await streamUpload(req);
+      console.log(result);
+      return result;
+  }
+  
+  upload(req).then((uploaded)=>{
+      req.body.featureImage = uploaded.url;
+  
+      // TODO: Process the req.body and add it as a new Blog Post before redirecting to /posts
+  
+  });
+  
+  
+  });
+
   app.all('/*', (req, res) => {
   res.send("404 - Page not found");
-})
+});
 
 // setup http server to listen on HTTP_PORT
 blogService.Initialize().then(() => { 

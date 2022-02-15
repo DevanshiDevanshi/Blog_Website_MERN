@@ -75,6 +75,10 @@ module.exports.getCategories = function () {
 }
 
 
-
+module.exports.addPost(postData) = function (){
+    return new promises((resolve,reject) =>{
+        
+    })
+}
 
 
