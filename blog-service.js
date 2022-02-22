@@ -75,10 +75,64 @@ module.exports.getCategories = function () {
 }
 
 
-module.exports.addPost(postData) = function (){
-    return new promises((resolve,reject) =>{
-        
+module.exports.addPost = function (postData) {
+    return new Promise((resolve, reject) => {
+        if (typeof postData.published === 'undefined') {
+            postData.published = false;
+        } else {
+            postData.published = true;
+        }
+        postData.id = posts.length + 1;
+        posts.push(postData);
+        resolve(postData);
+    });
+}
+
+module.exports.getPostsByCategory = function (Specicategory) {
+    return new Promise((resolve, reject) => {
+        let PostCatReturned = [];
+        for (let i = 0; i < posts.length; i++) {
+            if (posts[i].category == Specicategory) {
+                PostCatReturned.push(posts[i]);
+            }
+        }
+        if (PostCatReturned.length != 0) {
+            resolve(PostCatReturned);
+        } else {
+            reject("No results returned");
+        }
+    })
+}
+
+module.exports.getPostsById = function (SpeciID) {
+    return new Promise((resolve, reject) => {
+        let PostIdReturned = {};
+        for (let i = 0; i < posts.length; i++) {
+            if (posts[i].ID == SpeciID) {
+                PostIdReturned.push(posts[i]);
+            }
+        }
+        if (PostIdReturned.length != 0) {
+            resolve(PostIdReturned);
+        } else {
+            reject("No results returned");
+        }
     })
 }
 
 
+module.exports.getPostsByMinDate = function (minDateStr) {
+    return new Promise((resolve, reject) => {
+        let PostMinDateReturn = [];
+        for (let i = 0; i < posts.length; i++) {
+            if (new Date (posts[i].postDate) >= new Date (minDateStr)) {
+                PostMinDateReturn.push(posts[i]);
+            }
+        }
+        if (PostMinDateReturn.length != 0) {
+            resolve(PostMinDateReturn);
+        } else {
+            reject("No results returned");
+        }
+    })
+}
