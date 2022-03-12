@@ -3,10 +3,10 @@
 *  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  No part *  of this assignment has been copied manually or electronically from any other source 
 *  (including 3rd party web sites) or distributed to other students.
 * 
-*  Name: Devanshi Student ID: 153814207 Date: 5th feb 2022
+*  Name: Devanshi Student ID: 153814207 Date: 21st feb 2022
 *
 *  Online (Heroku) URL:
- https://young-retreat-24542.herokuapp.com/about
+https://young-retreat-24542.herokuapp.com/
 *
 *  GitHub Repository URL: 
 https://github.com/DevanshiDevanshi/web322-app
@@ -26,15 +26,20 @@ const upload = multer();
 const streamifier = require('streamifier');
 
 const blogService = require("./blog-service");
-
+const exphbs = require('express-handlebars');
 const path = require("path");
 const express = require("express");
+const { setEnvironmentData } = require("worker_threads");
 const app = express();
 const HTTP_PORT = process.env.PORT || 8080;
 function onHttpStart() {
   console.log("Express http server listening on: " + HTTP_PORT);
 }
 app.use(express.static('public')); // required dont delete this( used for static files-like images)
+
+//handle bar stuff
+app.engine('.hbs', exphbs.engine({ extname: '.hbs' }));
+app.set('view engine', '.hbs');
 
 // setup a 'route' to listen on the default url path (http://localhost)
 app.get("/", function (req, res) {
@@ -43,7 +48,11 @@ app.get("/", function (req, res) {
 
 // setup another route to listen on /about
 app.get("/about", function (req, res) {
-  res.sendFile(path.join(__dirname, "/views/about.html"));
+  //res.sendFile(path.join(__dirname, "/views/about.html"));
+  res.render('about',{
+    data: null,
+    layout: false
+  });
 });
 
 // update here to send json objects back
