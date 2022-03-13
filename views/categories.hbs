@@ -1,0 +1,38 @@
+<div class="row">
+    <div class="col-md-12">
+          <h2>Categories</h2>
+          <hr />
+
+          <p>
+              <table>
+                  <tr> 
+                      <th width="100">Category Id</th>
+                      <th width="175">Category Name</th>
+                  </tr>
+              
+              {{#each categories}}
+              <tr>
+                  <td><a
+                  href="/posts?category={{id}}">{{id}}</a></td>
+                  <td><a
+                  href="/posts?category={{id}}">{{category}}</a>
+                  </td>
+              </tr>
+              {{else}}
+              <tr>No data available</tr>
+              {{/each}}
+              </table>
+          </p>
+
+    </div>
+    {{#unless categories}}
+    <div class="col-md-12 text-center">
+            <strong>{{message}}</strong>
+     </div>
+
+    {{/unless}}
+
+          </p>
+
+    </div>
+</div>

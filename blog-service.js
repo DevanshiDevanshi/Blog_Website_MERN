@@ -136,3 +136,15 @@ module.exports.getPostsByMinDate = function (minDateStr) {
         }
     })
 }
+
+module.exports.getPostsByMinDate = function(){
+
+    return new Promise((resolve, reject) =>{
+    let publishedTrue = publishedTrue.filter(posts => posts.published == true && posts.category == category );
+         if(publishedTrue != []){
+            resolve(publishedTrue);
+         }else{
+           reject("No results returned");
+         }
+    })
+}
