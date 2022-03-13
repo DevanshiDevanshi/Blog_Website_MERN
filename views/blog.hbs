@@ -26,9 +26,9 @@
 
     <aside class="col-md-3">
         <br /><br />
-        {{#if data.post}}
+        {{#if data.posts}}
         <h4>Posts</h4>
-        {{#each data.post}}
+        {{#each data.posts}}
         <ul class="list-group">
             <a href= "/blog/{{id}}?category={{../viewingCategory}}"  class="list-group-item">{{title}}</a>
         </ul>
@@ -39,7 +39,7 @@
         <h4>Categories</h4>
         {{#each data.categories}}
         <ul class="list-group">
-            <a href= "/blog?category={{id}}"   class="list-group-item">{{title}}</a>
+            <a href= "/blog?category={{id}}"   class="list-group-item">{{category}}</a>
         </ul>
         {{/each}}
         {{/if}}

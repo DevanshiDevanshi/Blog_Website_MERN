@@ -79,7 +79,7 @@ app.use(function (req, res, next) {
 
 // setup a 'route' to listen on the default url path (http://localhost)
 app.get("/", function (req, res) {
-  res.redirect("/about");
+  res.redirect("/blog");
 });
 
 // setup another route to listen on /about
@@ -90,15 +90,6 @@ app.get("/about", function (req, res) {
   });
 });
 
-// update here to send json objects back
-// app.get('/blog', function (req, res) {
-//   blogService.getPublishedPosts().then((data) => {
-//     res.send(data);
-//   }).catch((error) => {
-//     console.log(error);
-//     res.status(404).send("ERROR!!");
-//   })
-// });
 
 app.get('/blog', async (req, res) => {
 
@@ -152,32 +143,26 @@ app.get('/blog', async (req, res) => {
 app.get("/posts", function (req, res) {
   if (req.query.category) {
     blogService.getPostsByCategory(req.query.category).then((data) => {
-      // res.send(data);
       res.render("posts", { posts: data })
 
     }).catch((error) => {
       console.log(error);
-      //res.status(404).send("ERROR!!");
       res.render("posts", { message: "no results" });
     })
   } else if (req.query.minDate) {
     blogService.getPostsByMinDate(req.query.minDate).then((data) => {
-      // res.send(data);
       res.render("posts", { posts: data })
     }).catch((error) => {
       console.log(error);
-      // res.status(404).send("ERROR!!");
       res.render("posts", { message: "no results" });
     })
   } else {
     blogService.getAllPosts().then((data) => {
-      // res.send(data);
       res.render("posts", {
         posts: data
       })
     }).catch((error) => {
       console.log(error);
-      // res.status(404).send("ERROR!!");
       res.render("posts", { message: "no results" });
 
     })
@@ -243,8 +228,62 @@ app.post("/posts/add", upload.single("featureImage"), function (req, res) {
 
 });
 
+app.get('/blog/:id', async (req, res) => {
+
+  // Declare an object to store properties for the view
+  let viewData = {};
+
+  try{
+
+      // declare empty array to hold "post" objects
+      let posts = [];
+
+      // if there's a "category" query, filter the returned posts by category
+      if(req.query.category){
+          // Obtain the published "posts" by category
+          posts = await blogData.getPublishedPostsByCategory(req.query.category);
+      }else{
+          // Obtain the published "posts"
+          posts = await blogData.getPublishedPosts();
+      }
+
+      // sort the published posts by postDate
+      posts.sort((a,b) => new Date(b.postDate) - new Date(a.postDate));
+
+      // store the "posts" and "post" data in the viewData object (to be passed to the view)
+      viewData.posts = posts;
+
+  }catch(err){
+      viewData.message = "no results";
+  }
+
+  try{
+      // Obtain the post by "id"
+      viewData.post = await blogData.getPostById(req.params.id);
+  }catch(err){
+      viewData.message = "no results"; 
+  }
+
+  try{
+      // Obtain the full list of "categories"
+      let categories = await blogData.getCategories();
+
+      // store the "categories" data in the viewData object (to be passed to the view)
+      viewData.categories = categories;
+  }catch(err){
+      viewData.categoriesMessage = "no results"
+  }
+
+  // render the "blog" view with all of the data (viewData)
+  res.render("blog", {data: viewData})
+});
+
 app.all('/*', (req, res) => {
-  res.send("404 - Page not found");
+  res.render('404', {
+    data: null,
+    layout: 'main'
+  });
+
 });
 
 // setup http server to listen on HTTP_PORT

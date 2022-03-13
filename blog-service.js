@@ -83,6 +83,10 @@ module.exports.addPost = function (postData) {
             postData.published = true;
         }
         postData.id = posts.length + 1;
+        var today = new Date();
+
+        var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+        postData.postDate = date;
         posts.push(postData);
         resolve(postData);
     });
@@ -125,7 +129,7 @@ module.exports.getPostsByMinDate = function (minDateStr) {
     return new Promise((resolve, reject) => {
         let PostMinDateReturn = [];
         for (let i = 0; i < posts.length; i++) {
-            if (new Date (posts[i].postDate) >= new Date (minDateStr)) {
+            if (new Date(posts[i].postDate) >= new Date(minDateStr)) {
                 PostMinDateReturn.push(posts[i]);
             }
         }
@@ -137,14 +141,14 @@ module.exports.getPostsByMinDate = function (minDateStr) {
     })
 }
 
-module.exports.getPostsByMinDate = function(){
+module.exports.getPostsByMinDate = function () {
 
-    return new Promise((resolve, reject) =>{
-    let publishedTrue = publishedTrue.filter(posts => posts.published == true && posts.category == category );
-         if(publishedTrue != []){
+    return new Promise((resolve, reject) => {
+        let publishedTrue = publishedTrue.filter(posts => posts.published == true && posts.category == category);
+        if (publishedTrue != []) {
             resolve(publishedTrue);
-         }else{
-           reject("No results returned");
-         }
+        } else {
+            reject("No results returned");
+        }
     })
 }
