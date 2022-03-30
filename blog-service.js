@@ -13,11 +13,6 @@ var sequelize = new Sequelize('d2sha63jj8v3c', 'ishgldraqgtebf', '56341565d275ff
 // defining  post model
 
 var Post = sequelize.define('Post',{
-    PostID: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        autoIncrement: true 
-    },
     body: Sequelize.TEXT,
     title: Sequelize.STRING,
     postDate: Sequelize.DATE,
@@ -29,11 +24,6 @@ var Post = sequelize.define('Post',{
 // defining category model
 
 var  Category = sequelize.define('Category',{
-    CategoryID: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        autoIncrement: true 
-    },
     category: Sequelize.STRING
 });
 
@@ -67,7 +57,7 @@ module.exports.getPostsByCategory = function (Specicategory) {
     return new Promise((resolve, reject) => {
         Post.findAll({
             where: {
-               CategoryID: Specicategory ,
+               id : Specicategory ,
                include: [{model: Category}],raw:true
             }
             
@@ -104,7 +94,7 @@ module.exports.getPostsById = function (SpeciID) {
     return new Promise((resolve, reject) => {
         Post.find({
             where: {
-               Postid : SpeciID 
+               id : SpeciID 
             }
         }).then((data)=>{
             resolve(data);
@@ -181,6 +171,36 @@ module.exports.getCategories = function () {
     })
 }
 
+module.exports.addCategory = (categoryData) => {
+    return new Promise((resolve, reject) => {
+        for (let i in categoryData) {
+            if (categoryData[i] == "") { categoryData[i] = null; }
+        }
+        Category.create(categoryData)
+            .then(resolve())
+            .catch(reject('unable to create Category'))
+
+    })
+}
+
+module.exports.deleteCategoryById = (Specid) => {
+    return new Promise((resolve, reject) => {
+        Category.destroy({
+                where: { id: Specid }
+            })
+            .then(resolve())
+            .catch((err) => reject(err))
+    })
+}
+
+module.exports.deletePostById = (Specid) => {
+    return new Promise((resolve, reject) => {
+        Post.destroy({
+            where: { id: Specid }
+        }).then(resolve()).catch(err => reject(err))
+
+    })
+}
 
 
 

@@ -38,7 +38,7 @@ function onHttpStart() {
   console.log("Express http server listening on: " + HTTP_PORT);
 }
 app.use(express.static('public')); // required dont delete this( used for static files-like images)
-
+app.use(express.urlencoded({extended: true}));
 //handle bar stuff
 app.engine('.hbs', exphbs.engine({
   extname: '.hbs',
@@ -151,24 +151,33 @@ app.get('/blog', async (req, res) => {
 app.get("/posts", function (req, res) {
   if (req.query.category) {
     blogService.getPostsByCategory(req.query.category).then((data) => {
-      res.render("posts", { posts: data })
-
+      if (data.length > 0) {
+        res.render("posts", { posts: data });
+      } else {
+        res.render("posts", { message: "no results found" })
+      }
     }).catch((error) => {
       console.log(error);
       res.render("posts", { message: "no results" });
-    })
+    });
   } else if (req.query.minDate) {
     blogService.getPostsByMinDate(req.query.minDate).then((data) => {
-      res.render("posts", { posts: data })
+      if (data.length > 0) {
+        res.render("posts", { posts: data });
+      } else {
+        res.render("posts", { message: "no results found" })
+      }
     }).catch((error) => {
       console.log(error);
       res.render("posts", { message: "no results" });
     })
   } else {
     blogService.getAllPosts().then((data) => {
-      res.render("posts", {
-        posts: data
-      })
+      if (data.length > 0) {
+        res.render("posts", { posts: data });
+      } else {
+        res.render("posts", { message: "no results found" })
+      }
     }).catch((error) => {
       console.log(error);
       res.render("posts", { message: "no results" });
@@ -180,7 +189,11 @@ app.get("/posts", function (req, res) {
 
 app.get("/categories", function (req, res) {
   blogService.getCategories().then((data) => {
-    res.render("categories", { categories: data });
+    if (data.length > 0) {
+      res.render("categories", { categories: data });
+    } else {
+      res.render("categories", { message: "no results found" })
+    }
   }).catch((error) => {
     console.log(error);
     res.render("categories", { message: "no results" });
@@ -189,10 +202,11 @@ app.get("/categories", function (req, res) {
 });
 
 app.get("/posts/add", function (req, res) {
-  res.render('addPost', {
-    data: null,
-    layout: 'main'
-  });
+  blogService.getCategories().then((categories) => {
+    res.render('addPost', { categories: categories });
+}).catch(function(err) {
+    res.render('addPost', { categories: [] });
+})
 
 });
 
@@ -286,20 +300,48 @@ app.get('/blog/:id', async (req, res) => {
   res.render("blog", { data: viewData })
 });
 
-app.all('/*', (req, res) => {
-  res.render('404', {
-    data: null,
-    layout: 'main'
-  });
-
-});
-
 app.get('/post/:id', (req, res) => {
   blogService.getPostsById(req.params.id).then(data => {
     res.json(data);
   }).catch(err => {
     res.json({ message: err });
   });
+});
+
+app.get("/categories/add", (req, res) => {
+  res.render("addCategory");
+})
+
+app.post("/categories/add", (req, res) => {
+  blogService.addCategory(req.body).then(
+      res.redirect('/categories')
+  ).catch(function(err) {
+      res.render({ message: err });
+  });
+})
+
+app.get("/category/delete/:id", (req, res) => {
+  blogService.deleteCategoryById(req.params.id).then(
+      res.redirect('/categories')
+  ).catch(function(err) {
+      res.status(500).send("Unable to Remove Category / Category not found");
+  });
+})
+
+app.get("/post/delete/:id", (req, res) => {
+  blogService.deletePostById(req.params.id).then(
+      res.redirect('/posts')
+  ).catch(function(err) {
+      res.status(500).send("Unable to Remove Category / Category not found");
+  });
+})
+
+app.all('/*', (req, res) => {
+  res.render('404', {
+    data: null,
+    layout: 'main'
+  });
+
 });
 
 // setup http server to listen on HTTP_PORT
