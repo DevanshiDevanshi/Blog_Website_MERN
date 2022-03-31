@@ -97,7 +97,7 @@ module.exports.getPostsById = function (SpeciID) {
                id : SpeciID 
             }
         }).then((data)=>{
-            resolve(data);
+            resolve(data[0]);
         }).catch((error) =>{
             console.log('no results returned');
             reject('No results in return | Error:' + err);
@@ -138,25 +138,32 @@ module.exports.getPublishedPosts = function () {
     })
 }
 
-module.exports.getPublishedPosts = function (){
-    return new Promise((resolve, reject) => {
-        Post.findAll({ where: published == true })
-            .catch((error) => {
-                reject("no results returned")
-            });
-    });
-}
+// module.exports.getPublishedPosts = function (){
+//     return new Promise((resolve, reject) => {
+//         Post.findAll({ 
+//             where:{
+//                 published: true
+//             } 
+//             }).then((data) =>{
+//                 resolve(data);
+//             })
+//             .catch((error) => {
+//                 reject("no results returned")
+//             });
+//     });
+// }
 
-module.exports.getPublishedPostsByCategory = function(category){
+module.exports.getPublishedPostsByCategory = function(Specicategory){
     return new Promise((resolve, reject) => {
         Post.findAll({
             where: {
                 published: true,
-                category: category
+                category: Specicategory
             }
         })
-        .then(data => resolve(data))
-        .catch(err => reject('No results'))
+        .then((data) =>{
+            resolve(data);
+        }).catch(err => reject('No results'))
        });
 }
 
@@ -186,9 +193,9 @@ module.exports.addCategory = (categoryData) => {
 module.exports.deleteCategoryById = (Specid) => {
     return new Promise((resolve, reject) => {
         Category.destroy({
-                where: { id: Specid }
-            })
-            .then(resolve())
+                where: { 
+                id: Specid 
+            }}).then(resolve())
             .catch((err) => reject(err))
     })
 }
@@ -196,8 +203,9 @@ module.exports.deleteCategoryById = (Specid) => {
 module.exports.deletePostById = (Specid) => {
     return new Promise((resolve, reject) => {
         Post.destroy({
-            where: { id: Specid }
-        }).then(resolve()).catch(err => reject(err))
+            where: {
+            id: Specid
+         }}).then(resolve()).catch(err => reject(err))
 
     })
 }
