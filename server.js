@@ -113,9 +113,11 @@ app.get('/blog', async (req, res) => {
     if (req.query.category) {
       // Obtain the published "posts" by category
       posts = await blogService.getPublishedPostsByCategory(req.query.category);
+      console.log(posts);
     } else {
       // Obtain the published "posts"
       posts = await blogService.getPublishedPosts();
+      console.log(posts);
     }
 
     // sort the published posts by postDate
@@ -129,7 +131,7 @@ app.get('/blog', async (req, res) => {
     viewData.post = post;
 
   } catch (err) {
-    console.log(err);
+    console.log(viewData);
     viewData.message = "no results";
   }
 

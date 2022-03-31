@@ -58,9 +58,9 @@ module.exports.getPostsByCategory = function (Specicategory) {
         Post.findAll({
             where: {
                id : Specicategory ,
-               include: [{model: Category}],raw:true
-            }
-            
+              
+            },
+            include: [{model: Category}],raw:true
         }).then((data)=>{
             resolve(data);
         }).catch((error) =>{
@@ -158,8 +158,10 @@ module.exports.getPublishedPostsByCategory = function(Specicategory){
         Post.findAll({
             where: {
                 published: true,
-                category: Specicategory
-            }
+                category: Specicategory,
+                
+            },
+            include: [{model: Category}],raw:true
         })
         .then((data) =>{
             resolve(data);
