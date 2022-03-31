@@ -129,6 +129,7 @@ app.get('/blog', async (req, res) => {
     viewData.post = post;
 
   } catch (err) {
+    console.log(err);
     viewData.message = "no results";
   }
 
@@ -139,6 +140,7 @@ app.get('/blog', async (req, res) => {
     // store the "categories" data in the viewData object (to be passed to the view)
     viewData.categories = categories;
   } catch (err) {
+    console.log(err);
     viewData.categoriesMessage = "no results"
   }
 
