@@ -13,7 +13,8 @@ https://github.com/DevanshiDevanshi/web322-app
 *
 ********************************************************************************/
 const multer = require("multer");
-
+const authData = require("auth-service.js");
+const clientSessions = require('client-sessions');
 const cloudinary = require('cloudinary').v2;
 
 cloudinary.config({
@@ -38,7 +39,7 @@ function onHttpStart() {
   console.log("Express http server listening on: " + HTTP_PORT);
 }
 app.use(express.static('public')); // required dont delete this( used for static files-like images)
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 //handle bar stuff
 app.engine('.hbs', exphbs.engine({
   extname: '.hbs',
@@ -76,6 +77,25 @@ app.engine('.hbs', exphbs.engine({
 }));
 app.set('view engine', '.hbs');
 
+app.use(clientSessions({
+  cookieName: "session", // this is the object name that will be added to 'req'
+  secret: "Devanshi_web322_assignment6", // this should be a long un-guessable string.
+  duration: 2 * 60 * 1000, // duration of the session in milliseconds (2 minutes)
+  activeDuration: 1000 * 60 // the session will be extended by this many ms each request (1 minute)
+}));
+
+app.use(function(req, res, next) {
+  res.locals.session = req.session;
+  next();
+});
+
+function ensureLogin(req, res, next) {
+  if (!req.session.user) {
+      res.redirect("/login");
+  } else {
+      next();
+  }
+}
 
 app.use(function (req, res, next) {
   let route = req.path.substring(1);
@@ -152,7 +172,7 @@ app.get('/blog', async (req, res) => {
 });
 
 
-app.get("/posts", function (req, res) {
+app.get("/posts",ensureLogin, function (req, res) {
   if (req.query.category) {
     blogService.getPostsByCategory(req.query.category).then((data) => {
       if (data.length > 0) {
@@ -191,7 +211,7 @@ app.get("/posts", function (req, res) {
 
 });
 
-app.get("/categories", function (req, res) {
+app.get("/categories", ensureLogin, function (req, res) {
   blogService.getCategories().then((data) => {
     if (data.length > 0) {
       res.render("categories", { categories: data });
@@ -205,16 +225,16 @@ app.get("/categories", function (req, res) {
 
 });
 
-app.get("/posts/add", function (req, res) {
+app.get("/posts/add",ensureLogin, function (req, res) {
   blogService.getCategories().then((categories) => {
     res.render('addPost', { categories: categories });
-}).catch(function(err) {
+  }).catch(function (err) {
     res.render('addPost', { categories: [] });
-})
+  })
 
 });
 
-app.post("/posts/add", upload.single("featureImage"), function (req, res) {
+app.post("/posts/add",ensureLogin, upload.single("featureImage"), function (req, res) {
 
   let streamUpload = (req) => {
     return new Promise((resolve, reject) => {
@@ -254,7 +274,7 @@ app.post("/posts/add", upload.single("featureImage"), function (req, res) {
 
 });
 
-app.get('/blog/:id', async (req, res) => {
+app.get('/blog/:id',ensureLogin, async (req, res) => {
 
   // Declare an object to store properties for the view
   let viewData = {};
@@ -304,7 +324,7 @@ app.get('/blog/:id', async (req, res) => {
   res.render("blog", { data: viewData })
 });
 
-app.get('/post/:id', (req, res) => {
+app.get('/post/:id',ensureLogin, (req, res) => {
   blogService.getPostsById(req.params.id).then(data => {
     res.json(data);
   }).catch(err => {
@@ -312,33 +332,72 @@ app.get('/post/:id', (req, res) => {
   });
 });
 
-app.get("/categories/add", (req, res) => {
+app.get("/categories/add",ensureLogin, (req, res) => {
   res.render("addCategory");
 })
 
-app.post("/categories/add", (req, res) => {
+app.post("/categories/add",ensureLogin, (req, res) => {
   blogService.addCategory(req.body).then(
-      res.redirect('/categories')
-  ).catch(function(err) {
-      res.render({ message: err });
+    res.redirect('/categories')
+  ).catch(function (err) {
+    res.render({ message: err });
   });
 })
 
-app.get("/category/delete/:id", (req, res) => {
+app.get("/category/delete/:id",ensureLogin, (req, res) => {
   blogService.deleteCategoryById(req.params.id).then(
-      res.redirect('/categories')
-  ).catch(function(err) {
-      res.status(500).send("Unable to Remove Category / Category not found");
+    res.redirect('/categories')
+  ).catch(function (err) {
+    res.status(500).send("Unable to Remove Category / Category not found");
   });
 })
 
-app.get("/post/delete/:id", (req, res) => {
+app.get("/post/delete/:id",ensureLogin, (req, res) => {
   blogService.deletePostById(req.params.id).then(
-      res.redirect('/posts')
-  ).catch(function(err) {
-      res.status(500).send("Unable to Remove Category / Category not found");
+    res.redirect('/posts')
+  ).catch(function (err) {
+    res.status(500).send("Unable to Remove Category / Category not found");
   });
 })
+
+
+// new routes assignment 6
+app.get("/login", (req, res) => {
+  res.render("login")
+})
+app.get("/register", (req, res) => {
+  res.render("register")
+})
+app.post("/register", (req, res) => {
+  authData.registerUser(req.body)
+      .then(() => res.render("register", { successMessage: "User created" }))
+      .catch(err => res.render("register", { errorMessage: err, userName: req.body.userName }))
+});
+app.post("/login", (req, res) => {
+  req.body.userAgent = req.get('User-Agent');
+  authData.checkUser(req.body)
+      .then(user => {
+          req.session.user = {
+              userName: user.userName,
+              email: user.email,
+              loginHistory: user.loginHistory
+          }
+          res.redirect("/posts");
+      })
+      .catch(err => {
+          res.render("login", { errorMessage: err, userName: req.body.userName })
+      })
+});
+
+app.get("/logout", (req, res) => {
+  req.session.reset();
+  res.redirect("/");
+});
+
+app.get("/userHistory", (req, res) => {
+  res.render("userHistory", { user: req.session.user });
+})
+
 
 app.all('/*', (req, res) => {
   res.render('404', {
@@ -349,9 +408,13 @@ app.all('/*', (req, res) => {
 });
 
 // setup http server to listen on HTTP_PORT
-blogService.Initialize().then(() => {
-  app.listen(HTTP_PORT, onHttpStart);
-}).catch(() => {
-  console.log("OOPS NO DATA TO DISPLAY!")
-})
+blogData.initialize()
+  .then(authData.initialize)
+  .then(function () {
+    app.listen(HTTP_PORT, function () {
+      console.log("app listening on: " + HTTP_PORT)
+    });
+  }).catch(function (err) {
+    console.log("unable to start server: " + err);
+  });
 
