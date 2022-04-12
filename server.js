@@ -13,7 +13,7 @@ https://github.com/DevanshiDevanshi/web322-app
 *
 ********************************************************************************/
 const multer = require("multer");
-const authData = require("auth-service.js");
+const authData = require("./auth-service");
 const clientSessions = require('client-sessions');
 const cloudinary = require('cloudinary').v2;
 
@@ -408,7 +408,7 @@ app.all('/*', (req, res) => {
 });
 
 // setup http server to listen on HTTP_PORT
-blogData.initialize()
+blogService.Initialize()
   .then(authData.initialize)
   .then(function () {
     app.listen(HTTP_PORT, function () {

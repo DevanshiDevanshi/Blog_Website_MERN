@@ -17,7 +17,7 @@ let User; // to be defined on new connection (see initialize)
 //you will make on mongo db later//
 module.exports.initialize = function() {
     return new Promise(function(resolve, reject) {
-        let db = mongoose.createConnection("", { useNewUrlParser: true });
+        let db = mongoose.createConnection("mongodb+srv://senecaweb.xy4ck.mongodb.net/myFirstDatabase", { useNewUrlParser: true });
         db.on('error', (err) => {
             reject(err);
         });
