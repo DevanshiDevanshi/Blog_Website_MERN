@@ -14,7 +14,7 @@ let User; // to be defined on new connection (see initialize)
 
 module.exports.initialize = function() {
     return new Promise(function(resolve, reject) {
-        let db = mongoose.createConnection("mongodb+srv://devanshiweb322.5kt2y.mongodb.net/web322DB", { useNewUrlParser: true });
+        let db = mongoose.createConnection("mongodb+srv://db_user:db_user@devanshiweb322.5kt2y.mongodb.net/myFirstDatabase?retryWrites=true&w=majority", { useNewUrlParser: true });
         db.on('error', (err) => {
             reject(err);
         });
