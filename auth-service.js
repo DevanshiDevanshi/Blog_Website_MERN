@@ -12,12 +12,9 @@ var userSchema = new Schema({
 });
 let User; // to be defined on new connection (see initialize)
 
-
-//***** you have to add connection name in " here " that
-//you will make on mongo db later//
 module.exports.initialize = function() {
     return new Promise(function(resolve, reject) {
-        let db = mongoose.createConnection("mongodb+srv://senecaweb.xy4ck.mongodb.net/myFirstDatabase", { useNewUrlParser: true });
+        let db = mongoose.createConnection("mongodb+srv://devanshiweb322.5kt2y.mongodb.net/web322DB", { useNewUrlParser: true });
         db.on('error', (err) => {
             reject(err);
         });

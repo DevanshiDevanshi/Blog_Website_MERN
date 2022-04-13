@@ -37,12 +37,6 @@
                     {{#navLink "/about"}}About{{/navLink}}
                 </ul>
                 {{#if session.user}}
-
-                <ul class="nav navbar-nav navbar-right">
-                    {{#navLink "/posts"}}Posts{{/navLink}}
-                    {{#navLink "/categories"}}Categories{{/navLink}}
-                </ul>
-
                 <form class="navbar-form navbar-right">
                     <div class="dropdown">
                         <button class="btn btn-primary dropdown-toggle" type="button" id="userMenu"
@@ -73,7 +67,7 @@
                     <a href="/login" class="btn btn-primary"><span
                             class="glyphicon glyphicon-chevron-right"></span>&nbsp;&nbsp;Log In</a>
                 </form>
-
+                {{/if}}
                 <div class="container" style="padding-top:60px">
                     {{{body}}}
                 </div>
